@@ -16,6 +16,7 @@ class ScrapAndSaveFromURL():
         
         print(data_idealista)
         print(summary_dictionary_idealista)
+        
 
         # mongodb_data_recorder = MongoDBDataRecorder(data_idealista)
         # mongodb_data_recorder.post_data()

@@ -7,6 +7,7 @@ from dto.summary_scrapped_dto import SummaryScrappedDTO
 
 import time 
 import random
+from selenium.webdriver.common.by import By
 
 #https://www.seleniumhq.org/download/
 #14393
@@ -34,7 +35,7 @@ class ScraperSeleniumIdealista:
 
     def get_data_from_page(self,driver,url_from_db):
         print("obtaining data from " + driver.current_url)
-        item_info_container = self.driver.find_elements_by_class_name("item-info-container  ")
+        item_info_container = self.driver.find_element(by=By.CLASS_NAME, value="item-info-container")
         
         
         random_int =8573 + random.randint(-3, 3)
@@ -65,9 +66,9 @@ class ScraperSeleniumIdealista:
             for home in info_container_array:
                 title=home.find_element_by_tag_name('a').text.strip()
                 url_element=home.find_element_by_tag_name('a').get_attribute("href").strip()
-                prize=home.find_elements_by_class_name('item-price')[0].text.replace(" €","").replace("\u20ac","").strip()
-                rooms=home.find_elements_by_class_name('item-detail')[0].text.replace(" hab.","").strip()
-                meters=home.find_elements_by_class_name('item-detail')[1].text.replace(" m²","").strip()
+                prize=home.find_element(by=By.CLASS_NAME, value='item-price')[0].text.replace(" €","").replace("\u20ac","").strip()
+                rooms=home.find_element(by=By.CLASS_NAME, value='item-detail')[0].text.replace(" hab.","").strip()
+                meters=home.find_element(by=By.CLASS_NAME,value='item-detail')[1].text.replace(" m²","").strip()
                 dto=RealStateEntryDTO(title,prize,meters,rooms,self.driver.current_url,url_element,url_from_db)
                 self.data[url_from_db]=self.data[url_from_db] + [dto]
 
