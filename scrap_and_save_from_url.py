@@ -7,7 +7,8 @@ from mongodb_dao.mongodb_summary_recorder import MongoDBSummaryRecorder
 
 class ScrapAndSaveFromURL():
     def main(self):
-        urls=['https://www.idealista.com/venta-viviendas/galapagar-madrid/con-precio-hasta_300000,chalets,casas-de-pueblo/']
+        #urls=['https://www.idealista.com/venta-viviendas/galapagar-madrid/con-precio-hasta_300000,chalets,casas-de-pueblo/']
+        urls=['http://127.0.0.1:5500/index.html']
 
         scraper_idealista = ScraperSeleniumIdealista(urls)
         scraper_idealista.get_data()

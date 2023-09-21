@@ -1,4 +1,5 @@
 from selenium import webdriver
+import selenium
 import sys
 
 from utils_app.util_summary_builder import UtilsSummaryBuilder
@@ -18,8 +19,8 @@ class ScraperSeleniumIdealista:
     def __init__(self, urls):
         self.urls = urls
         #self.driver = webdriver.Edge()
-        self.driver = webdriver.Chrome()
-        #self.driver = webdriver.Firefox()
+        #self.driver = webdriver.Chrome()
+        self.driver = webdriver.Firefox()
         self.data ={}
         self.summaries = {}
     
@@ -35,7 +36,9 @@ class ScraperSeleniumIdealista:
 
     def get_data_from_page(self,driver,url_from_db):
         print("obtaining data from " + driver.current_url)
-        item_info_container = self.driver.find_element(by=By.CLASS_NAME, value="item-info-container")
+        print(selenium.__version__)
+        item_info_container = self.driver.find_elements(by=By.CLASS_NAME, value="thumb")
+        print(item_info_container)
         
         
         random_int =8573 + random.randint(-3, 3)
@@ -48,15 +51,15 @@ class ScraperSeleniumIdealista:
 
         time.sleep(random.uniform(0.5,1))
         if (self.is_next_page()):
-            url=driver.find_elements_by_class_name("icon-arrow-right-after")[0].get_attribute("href")
-            driver.get(url)
+            url=self.driver.find_elements(by=By.CLASS_NAME, value="icon-arrow-right-after")[0].get_attribute("href")
+            self.driver.get(url)
             self.get_data_from_page(driver,url_from_db)
         else: 
             self.get_summary(driver,url_from_db)
             
 
     def is_next_page(self):
-        next_button=self.driver.find_elements_by_class_name("icon-arrow-right-after")
+        next_button=self.driver.find_elements(by=By.CLASS_NAME, value="icon-arrow-right-after")
         return not next_button == []
 
     def parse_info_container_and_update_data(self,info_container_array,url_from_db):
@@ -64,16 +67,17 @@ class ScraperSeleniumIdealista:
             if(not url_from_db in self.data.keys()): self.data[url_from_db]=[]
 
             for home in info_container_array:
-                title=home.find_element_by_tag_name('a').text.strip()
-                url_element=home.find_element_by_tag_name('a').get_attribute("href").strip()
-                prize=home.find_element(by=By.CLASS_NAME, value='item-price')[0].text.replace(" €","").replace("\u20ac","").strip()
-                rooms=home.find_element(by=By.CLASS_NAME, value='item-detail')[0].text.replace(" hab.","").strip()
-                meters=home.find_element(by=By.CLASS_NAME,value='item-detail')[1].text.replace(" m²","").strip()
+                title=home.find_element(by=By.TAG_NAME, value='a').text.strip()
+                url_element=home.find_element(by=By.TAG_NAME, value='a').get_attribute("href").strip()
+                prize=home.find_elements(by=By.CLASS_NAME, value='item-price')[0].text.replace(" €","").replace("\u20ac","").strip()
+                rooms=home.find_elements(by=By.CLASS_NAME, value='item-detail')[0].text.replace(" hab.","").strip()
+                meters=home.find_elements(by=By.CLASS_NAME,value='item-detail')[1].text.replace(" m²","").strip()
                 dto=RealStateEntryDTO(title,prize,meters,rooms,self.driver.current_url,url_element,url_from_db)
                 self.data[url_from_db]=self.data[url_from_db] + [dto]
 
     def get_summary(self,driver,url_from_db):
-        average_prize=self.driver.find_elements_by_class_name("items-average-price")[0].text.replace("Precio medio","").replace("eur/m²","").strip()
+        average_prize=self.driver.find_elements(by=By.CLASS_NAME, value="items-average-price")[0].text.replace("Precio medio","").replace("eur/m²","").strip()
+        print(len(average_prize))
         util_summary_builder=UtilsSummaryBuilder(self.data[url_from_db],url_from_db,average_prize)
         util_summary_builder.obtain_summary()
         summary = util_summary_builder.summary
