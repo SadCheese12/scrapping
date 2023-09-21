@@ -38,7 +38,10 @@ class ScraperSeleniumIdealista:
         print("obtaining data from " + driver.current_url)
         print(selenium.__version__)
         item_info_container = self.driver.find_elements(by=By.CLASS_NAME, value="thumb")
-        print(item_info_container)
+        time.sleep(5)
+        title=self.driver.find_element(by=By.TAG_NAME, value='h2').text
+        print(title)
+        #print(item_info_container)
         
         
         random_int =8573 + random.randint(-3, 3)
@@ -67,18 +70,18 @@ class ScraperSeleniumIdealista:
             if(not url_from_db in self.data.keys()): self.data[url_from_db]=[]
 
             for home in info_container_array:
-                title=home.find_element(by=By.TAG_NAME, value='a').text.strip()
-                url_element=home.find_element(by=By.TAG_NAME, value='a').get_attribute("href").strip()
-                prize=home.find_elements(by=By.CLASS_NAME, value='item-price')[0].text.replace(" €","").replace("\u20ac","").strip()
-                rooms=home.find_elements(by=By.CLASS_NAME, value='item-detail')[0].text.replace(" hab.","").strip()
-                meters=home.find_elements(by=By.CLASS_NAME,value='item-detail')[1].text.replace(" m²","").strip()
-                dto=RealStateEntryDTO(title,prize,meters,rooms,self.driver.current_url,url_element,url_from_db)
+                title=home.find_element(by=By.TAG_NAME, value='a').text
+                url_element=home.find_element(by=By.TAG_NAME, value='a').get_attribute("href")
+                #prize=home.find_elements(by=By.CLASS_NAME, value='item-price')[0].text.replace(" €","").replace("\u20ac","")
+                #rooms=home.find_elements(by=By.CLASS_NAME, value='item-detail')[0].text.replace(" hab.","")
+                #meters=home.find_elements(by=By.CLASS_NAME,value='item-detail')[1].text.replace(" m²","")
+                dto=RealStateEntryDTO(title,"","","",self.driver.current_url,url_element,url_from_db)
                 self.data[url_from_db]=self.data[url_from_db] + [dto]
 
     def get_summary(self,driver,url_from_db):
-        average_prize=self.driver.find_elements(by=By.CLASS_NAME, value="items-average-price")[0].text.replace("Precio medio","").replace("eur/m²","").strip()
-        print(len(average_prize))
-        util_summary_builder=UtilsSummaryBuilder(self.data[url_from_db],url_from_db,average_prize)
+        #average_prize=self.driver.find_elements(by=By.CLASS_NAME, value="items-average-price")[0].text.replace("Precio medio","").replace("eur/m²","").strip()
+        #print(len(average_prize))
+        util_summary_builder=UtilsSummaryBuilder(self.data[url_from_db],url_from_db,"")
         util_summary_builder.obtain_summary()
         summary = util_summary_builder.summary
         self.summaries[url_from_db] = summary
