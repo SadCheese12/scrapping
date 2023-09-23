@@ -36,14 +36,10 @@ class ScraperSeleniumIdealista:
 
     def get_data_from_page(self,driver,url_from_db):
         print("obtaining data from " + driver.current_url)
-        print(selenium.__version__)
-        item_info_container = self.driver.find_elements(by=By.CLASS_NAME, value="thumb")
+        item_info_container = self.driver.find_elements(by=By.CLASS_NAME, value="data")
         time.sleep(5)
-        title=self.driver.find_element(by=By.TAG_NAME, value='h2').text
-        print(title)
-        #print(item_info_container)
-        
-        
+        print(len(item_info_container))
+            
         random_int =8573 + random.randint(-3, 3)
         driver.execute_script("window.scrollTo(0, "+str(random_int) +");")
         time.sleep(random.uniform(0.5,0.9))
@@ -70,12 +66,15 @@ class ScraperSeleniumIdealista:
             if(not url_from_db in self.data.keys()): self.data[url_from_db]=[]
 
             for home in info_container_array:
-                title=home.find_element(by=By.TAG_NAME, value='a').text
-                url_element=home.find_element(by=By.TAG_NAME, value='a').get_attribute("href")
+                title=home.find_element(by=By.CLASS_NAME, value="title").text
+                print(title)
+                price = home.find_element(by=By.CLASS_NAME, value = "price").text
+                print(price)
+                #url_element=self.driver.find_element(by=By.TAG_NAME, value='a').get_attribute("href")
                 #prize=home.find_elements(by=By.CLASS_NAME, value='item-price')[0].text.replace(" €","").replace("\u20ac","")
                 #rooms=home.find_elements(by=By.CLASS_NAME, value='item-detail')[0].text.replace(" hab.","")
                 #meters=home.find_elements(by=By.CLASS_NAME,value='item-detail')[1].text.replace(" m²","")
-                dto=RealStateEntryDTO(title,"","","",self.driver.current_url,url_element,url_from_db)
+                dto=RealStateEntryDTO(title,price,"","",self.driver.current_url,"",url_from_db)
                 self.data[url_from_db]=self.data[url_from_db] + [dto]
 
     def get_summary(self,driver,url_from_db):

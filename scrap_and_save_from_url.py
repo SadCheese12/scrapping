@@ -1,5 +1,6 @@
 from scraper.scraper_selenium_idealista import ScraperSeleniumIdealista
 from scraper.scraper_selenium_fotocasa import ScraperSeleniumFotocasa
+from scraper.scraper_selenium import ScraperOwn
 
 from mongodb_dao.mongodb_data_recorder import MongoDBDataRecorder
 from mongodb_dao.mongodb_config_grabber import MongoConfigGrabber
@@ -8,8 +9,8 @@ from mongodb_dao.mongodb_summary_recorder import MongoDBSummaryRecorder
 class ScrapAndSaveFromURL():
     def main(self):
         #urls=['https://www.idealista.com/venta-viviendas/galapagar-madrid/con-precio-hasta_300000,chalets,casas-de-pueblo/']
-        urls=['http://127.0.0.1:5500/index.html']
-
+        #urls=['http://127.0.0.1:5500/index.html']
+        urls = ['https://www.icasas.ec/venta/departamentos/quito']
         scraper_idealista = ScraperSeleniumIdealista(urls)
         scraper_idealista.get_data()
         data_idealista = scraper_idealista.data
