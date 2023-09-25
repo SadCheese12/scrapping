@@ -27,24 +27,25 @@ class ScraperSeleniumFotocasa:
             driver = self.driver
             driver.get(url_from_db) 
             #driver.set_window_position(-4000,0)
-
-            self.get_data_from_page(driver,url_from_db) 
+            return self.get_data_from_page(driver,url_from_db) 
         driver.close()
        
     def get_data_from_page(self, driver, url_from_db):
         print("Obteniendo datos desde: " + driver.current_url)
         search_results = self.driver.find_elements(by=By.CLASS_NAME, value="info-wrapper")
         print("Número de resultados en la página: ", len(search_results))
-        for i in range(len(search_results)):
+        listaDiccionario = []
+        for i in range(2):#len(search_results)):
             div_element = search_results[i]
             div_element.click()
             driver.switch_to.window(driver.window_handles[1])
             time.sleep(2)
             new_page_url = driver.current_url
+            titulo = self.driver.find_element(by=By.ID, value="title-container")
+            elemento_h3 = titulo.find_element(By.TAG_NAME, value = "h3")
+            tituloPropiedad = elemento_h3.get_attribute("textContent")            
             print("La nueva URL es: ", new_page_url)
-
             while True:
-                # Busca la flecha lateral en cada iteración del bucle
                 try:
                     flechaLateral = self.driver.find_element(by=By.CLASS_NAME, value="next")
                     if "swiper-button-disabled" in flechaLateral.get_attribute("class"):
@@ -54,100 +55,31 @@ class ScraperSeleniumFotocasa:
                         time.sleep(1)
                 except NoSuchElementException:
                     break
-
             time.sleep(2)
             contenedorImagenes = self.driver.find_element(by=By.CLASS_NAME, value="swiper-wrapper")
             images = contenedorImagenes.find_elements(By.TAG_NAME, "img")
             unique_links = set()
-
             for image in images:
                 image_source = image.get_attribute("src")
                 if image_source:
                     unique_links.add(image_source)            
             unique_links_list = list(unique_links)
-            for link in unique_links_list:
-                print(link)
+            for element in unique_links_list: 
+                dicImg = {
+                        "url": new_page_url,  
+                        "img": element, 
+                        "descripcion": tituloPropiedad,  
+                    }
+                listaDiccionario.append(dicImg)
+            
             print("Se encontraron: ", len(unique_links_list), " imágenes")
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
-
-        '''def get_data_from_page(self,driver,url_from_db):
-        print("Obteniendo datos desde: " + driver.current_url)
-        search_result = self.driver.find_elements(by=By.CLASS_NAME, value="info-wrapper")
-        print("Número de resultados en la página: ",len(search_result))
-        for i in range(len(search_result)):
-            div_element = search_result[i] 
-            div_element.click()
-            driver.switch_to.window(driver.window_handles[1])
-            time.sleep(2)
-            new_page_url = driver.current_url
-            print("La nueva URL es: ",new_page_url)
-            #resultadosImg = self.driver.find_elements(by=By.CLASS_NAME, value="swiper-lazy-loaded")
-            imagenCentro = self.driver.find_element(by=By.CLASS_NAME, value="s-wrapper")
-            imagenCentro.click()
-            flechaLateral = self.driver.find_element(by=By.CLASS_NAME, value="next")
-            while(flechaLateral): 
-                if "swiper-button-disabled" in flechaLateral.get_attribute("class"): 
-                    break
-                else:
-                    flechaLateral.click()
-                    time.sleep(1)
-                flechaLateral = self.driver.find_element(by=By.CLASS_NAME, value="next")
-            time.sleep(2)
-            contenedorImagenes = self.driver.find_element(by=By.CLASS_NAME, value="swiper-wrapper")
-            images = contenedorImagenes.find_elements(By.TAG_NAME, "img")
-            unique_links = set()
-            for image in images:
-                image_source = image.get_attribute("src")
-                if image_source:
-                    unique_links.add(image_source)
-
-            # Convierte el conjunto en una lista si lo prefieres
-            unique_links_list = list(unique_links)
-
-            # Imprime los enlaces únicos
-            #for link in unique_links_list:
-            #    print(link)
-            print ("Se encontraron: ",len(unique_links_list), " imagenes")'''
-        
-        
-    '''print ("El número de imagenes es: ",len(resultadosImg))
-        for img in resultadosImg: 
-            url = img.get_attribute("src")
-            print ("Url de las imagenes: ", url)
-        #driver.execute_script("window.scrollTo(0, "+str(25000) +");")'''
-        
-        
-        # Vuelve al contexto de la ventana original
-        #driver.switch_to.window(driver.window_handles[0])
-        
-    '''div_html = div_element.get_attribute("outerHTML")  # Obtiene el HTML del div
-        div_text = div_element.text  # Obtiene el texto dentro del div
-        print("HTML del div:", div_html)
-        print("Texto dentro del div:", div_text)
-        elemento_interno = div_element.find_element(by=By.CLASS_NAME, value="elemento-interno")
-        for home in search_result:
-            descripcion = home.find_element(by=By.CLASS_NAME, value="description ng-star-inserted")
-            
-
-            print (descripcion)
-        
-        random_int =8573 + random.randint(-3, 3)
-        driver.execute_script("window.scrollTo(0, "+str(random_int) +");")
-        time.sleep(random.uniform(0.5,0.9))'''
-    '''self.parse_search_result_item_and_update_data(search_result,url_from_db)
-
-        print("obtained " + str(len(self.data)) + " entries")
-        time.sleep(random.uniform(0.5,1))
-
-        if (self.is_next_page()):
-            print("moving to next page in search")
-            url=self.driver.find_element_by_xpath("//*[text()='>']").get_attribute("href")
-            driver.get(url)
-            self.get_data_from_page(driver,url_from_db)
-        else: 
-            self.get_summary(driver,url_from_db)
-            '''
+        #for link in listaDiccionario:
+        #    print(link)
+        print("Número de elementos recopilados", len(listaDiccionario))
+        print("El typo del objeto listaDiccionario es: ", type(listaDiccionario))
+        return listaDiccionario
 
     def is_next_page(self):
         try:

@@ -6,6 +6,7 @@ from dto.real_state_entry_dto import RealStateEntryDTO
 class MongoConfigGrabber:
 
     def __init__(self):
+        #mongodb+srv://monterosuniga:<password>@cluster0.6sh1gzt.mongodb.net/
         self.client = MongoClient('mongodb://freshkore:1234@ds231460.mlab.com:31460/real-state-db')
         self.db = self.client['real-state-db']
         self.scrapping_urls_idealista=[]
