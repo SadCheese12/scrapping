@@ -1,6 +1,6 @@
 from scraper.scraper_selenium_idealista import ScraperSeleniumIdealista
 from scraper.scraper_selenium_fotocasa import ScraperSeleniumFotocasa
-from scraper.scraper_selenium import ScraperOwn
+#from scraper.scraper_selenium import ScraperOwn
 
 from mongodb_dao.mongodb_data_recorder import MongoDBDataRecorder
 from mongodb_dao.mongodb_config_grabber import MongoConfigGrabber
@@ -18,8 +18,14 @@ class ScrapAndSaveFromURL():
         summary_dictionary_idealista = scraper_idealista.summaries
         
         print(data_idealista)
-        print(summary_dictionary_idealista)
+        print(summary_dictionary_idealista)'''
         
+        urlsRemax = ["https://www.remax.com.ec/listings/buy?page=0&pageSize=21&sort=-createdAt&in:operationId=1&locations=in:::1701@%3Cb%3EQuito%3C%2Fb%3E#%20Pichincha::::&filterCount=0&viewMode=list"]
+        scraper_remax = ScraperSeleniumFotocasa(urlsRemax)
+        scraper_remax.get_data()
+
+
+
 
         # mongodb_data_recorder = MongoDBDataRecorder(data_idealista)
         # mongodb_data_recorder.post_data()
