@@ -1,6 +1,6 @@
 from scraper.scraper_selenium_idealista import ScraperSeleniumIdealista
 from scraper.scraper_selenium_fotocasa import ScraperSeleniumFotocasa
-from scraper.scraper_selenium import ScraperOwn
+
 
 from mongodb_dao.mongodb_data_recorder import MongoDBDataRecorder
 from mongodb_dao.mongodb_config_grabber import MongoConfigGrabber
@@ -13,11 +13,12 @@ class ScrapAndSaveFromURL():
         urls = ['https://www.icasas.ec/venta/departamentos/quito']
         scraper_idealista = ScraperSeleniumIdealista(urls)
         scraper_idealista.get_data()
+        
         data_idealista = scraper_idealista.data
         summary_dictionary_idealista = scraper_idealista.summaries
         
-        print(data_idealista)
-        print(summary_dictionary_idealista)
+        #print(data_idealista)
+        #print(summary_dictionary_idealista)
         
 
         # mongodb_data_recorder = MongoDBDataRecorder(data_idealista)
