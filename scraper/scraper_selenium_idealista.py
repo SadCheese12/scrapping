@@ -9,6 +9,9 @@ from dto.summary_scrapped_dto import SummaryScrappedDTO
 import time 
 import random
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 #https://www.seleniumhq.org/download/
 #14393
@@ -28,15 +31,55 @@ class ScraperSeleniumIdealista:
         for url_from_db in self.urls:
             driver = self.driver
             driver.get(url_from_db) 
-            #driver.set_window_position(-4000,0)
+            
+            ul_element = self.driver.find_element(by=By.CLASS_NAME, value="listAds")
+            li_elements = ul_element.find_elements(by=By.TAG_NAME, value="li")
+            cantidad_de_li = len(li_elements)
+            
+            
+            if cantidad_de_li != 0:
+                
+                for li in li_elements:
+                    
+                    wait = WebDriverWait(self.driver, 10)
+                    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                    
+                    print("UL: ",ul_element)
+                    print("LI: ",li)
 
-            self.get_data_from_page(driver,url_from_db) 
+                    li.click()
+                    
+                    wait = WebDriverWait(self.driver, 10)
+                    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                    
+                    new_url = self.driver.current_url
+                    print(new_url)
+                    slick_track = self.driver.find_elements(by=By.CLASS_NAME, value="slick-track")
+                    print(len(slick_track))
+                    
+                    data_slick_index_elements = slick_track[0].find_elements(by=By.CSS_SELECTOR, value="[data-slick-index]")
+                    
+                    cant = len(data_slick_index_elements)
+                    print(cant)
+                    
+                    for element in data_slick_index_elements:
+                        a_elemnt = element.find_element(by=By.TAG_NAME, value="a")
+                        href = a_elemnt.get_attribute("href")
+                        print(href)
+                        
+                    self.driver.back()
+                    
+                    
+            else:
+                print("Hubo un error")
+                
+            #self.get_data_from_page(driver,url_from_db) 
         driver.close()
        
 
     def get_data_from_page(self,driver,url_from_db):
         print("obtaining data from " + driver.current_url)
-        item_info_container = self.driver.find_elements(by=By.CLASS_NAME, value="data")
+        item_info_container = self.driver.find_elements(by=By.CLASS_NAME, value="serp-snippet ad premier")
         time.sleep(5)
         print(len(item_info_container))
             
