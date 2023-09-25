@@ -66,6 +66,7 @@ class ScraperSeleniumIdealista:
             if(not url_from_db in self.data.keys()): self.data[url_from_db]=[]
 
             for home in info_container_array:
+                print("ESTO ES LO QUE ESTA EN HOME", home)
                 title=home.find_element(by=By.CLASS_NAME, value="title").text
                 print(title)
                 price = home.find_element(by=By.CLASS_NAME, value = "price").text

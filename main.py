@@ -1,3 +1,7 @@
+
+#pip install pymongo
+#pip install requests
+#pip install selenium
 from scraper.scraper_selenium_idealista import ScraperSeleniumIdealista
 from scraper.scraper_selenium_fotocasa import ScraperSeleniumFotocasa
 
