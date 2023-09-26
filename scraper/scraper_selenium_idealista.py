@@ -12,6 +12,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import StaleElementReferenceException
 
 #https://www.seleniumhq.org/download/
 #14393
@@ -30,74 +32,76 @@ class ScraperSeleniumIdealista:
     def get_data(self):
         for url_from_db in self.urls:
             driver = self.driver
-            driver.get(url_from_db) 
-            
-            ul_element = self.driver.find_element(by=By.CLASS_NAME, value="listAds")
-            li_elements = ul_element.find_elements(by=By.TAG_NAME, value="li")
-            cantidad_de_li = len(li_elements)
-            
-            
-            if cantidad_de_li != 0:
+            driver.get(url_from_db)     
                 
-                for li in li_elements:
-                    
-                    wait = WebDriverWait(self.driver, 10)
-                    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                    
-                    print("UL: ",ul_element)
-                    print("LI: ",li)
-
-                    li.click()
-                    
-                    wait = WebDriverWait(self.driver, 10)
-                    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
-                    
-                    new_url = self.driver.current_url
-                    print(new_url)
-                    slick_track = self.driver.find_elements(by=By.CLASS_NAME, value="slick-track")
-                    print(len(slick_track))
-                    
-                    data_slick_index_elements = slick_track[0].find_elements(by=By.CSS_SELECTOR, value="[data-slick-index]")
-                    
-                    cant = len(data_slick_index_elements)
-                    print(cant)
-                    
-                    for element in data_slick_index_elements:
-                        a_elemnt = element.find_element(by=By.TAG_NAME, value="a")
-                        href = a_elemnt.get_attribute("href")
-                        print(href)
+            divs = driver.find_elements(By.CLASS_NAME, 'serp-snippet')
+                
+            print("Numero de publicaciones en la pagina: ", len(divs))
+                
+            listaDiccionario = []
+            for i in range(len(divs)):
+                try:
+                    print(i+1, " iteracion")
                         
-                    self.driver.back()
+                    div_container = divs[i]
                     
+                    div_container.click()
+                        
+                    wait =  WebDriverWait(self.driver, 10)
+                    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+                            
+                    new_url = driver.current_url
+                    print("Nueva URL: ",new_url)
+                    slick_track = driver.find_elements(by=By.CLASS_NAME, value="slick-track")
+                    titulo = driver.find_element(By.TAG_NAME, 'h1').text
+                    print("Titulo: ",titulo)
+                            
+                    data_slick_index_elements = slick_track[0].find_elements(by=By.CSS_SELECTOR, value="[data-slick-index]")
+                        
+                            
+                    for i in range(len(data_slick_index_elements)):
+                        try:
+                            element = data_slick_index_elements[i]
+                            a_elemnt = element.find_element(by=By.TAG_NAME, value="a")
+                            href = a_elemnt.get_attribute("href")
+                            print("URL: ", href)
+                            dic = {
+                                "url": new_url,
+                                "img": href,
+                                "descripcion": titulo
+                            }
+                            listaDiccionario.append(dic)
+                        except NoSuchElementException:
+                            print("Imagen no encontrada, pasando al siguiente elemento")
+                            if i + 1 < len(data_slick_index_elements):
+                                element = data_slick_index_elements[i + 1]
+                                a_elemnt = element.find_element(by=By.TAG_NAME, value="a")
+                                href = a_elemnt.get_attribute("href")
+                                print("URL: ",href)
+                                dic = {
+                                    "url": new_url,
+                                    "img": href,
+                                    "descripcion": titulo
+                                }
+                                listaDiccionario.append(dic)
+                        
+                    driver.back()
+                    wait =  WebDriverWait(self.driver, 10)
+                    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
                     
-            else:
-                print("Hubo un error")
-                
-            #self.get_data_from_page(driver,url_from_db) 
+                except StaleElementReferenceException:
+                    print("Actualizando referencia...")
+                    divs = driver.find_elements(By.CLASS_NAME, 'serp-snippet')
+                    
+            #self.get_data_from_page(driver,url_from_db)
+            print("Numero de elementos recopilados: ", len(listaDiccionario))
+            print(listaDiccionario) 
         driver.close()
        
 
     def get_data_from_page(self,driver,url_from_db):
         print("obtaining data from " + driver.current_url)
-        item_info_container = self.driver.find_elements(by=By.CLASS_NAME, value="serp-snippet ad premier")
-        time.sleep(5)
-        print(len(item_info_container))
-            
-        random_int =8573 + random.randint(-3, 3)
-        driver.execute_script("window.scrollTo(0, "+str(random_int) +");")
-        time.sleep(random.uniform(0.5,0.9))
-        self.parse_info_container_and_update_data(item_info_container,url_from_db)
-
-        print("obtained " + str(len(self.data[url_from_db])) + " entries")
-
-
-        time.sleep(random.uniform(0.5,1))
-        if (self.is_next_page()):
-            url=self.driver.find_elements(by=By.CLASS_NAME, value="icon-arrow-right-after")[0].get_attribute("href")
-            self.driver.get(url)
-            self.get_data_from_page(driver,url_from_db)
-        else: 
-            self.get_summary(driver,url_from_db)
+        
             
 
     def is_next_page(self):
