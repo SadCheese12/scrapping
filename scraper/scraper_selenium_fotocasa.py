@@ -35,11 +35,11 @@ class ScraperSeleniumFotocasa:
         search_results = self.driver.find_elements(by=By.CLASS_NAME, value="info-wrapper")
         print("Número de resultados en la página: ", len(search_results))
         listaDiccionario = []
-        for i in range(2):#len(search_results)):
+        for i in range(len(search_results)):#len(search_results)):
             div_element = search_results[i]
             div_element.click()
             driver.switch_to.window(driver.window_handles[1])
-            time.sleep(2)
+            time.sleep(4)
             new_page_url = driver.current_url
             titulo = self.driver.find_element(by=By.ID, value="title-container")
             elemento_h3 = titulo.find_element(By.TAG_NAME, value = "h3")
@@ -56,13 +56,18 @@ class ScraperSeleniumFotocasa:
                 except NoSuchElementException:
                     break
             time.sleep(2)
-            contenedorImagenes = self.driver.find_element(by=By.CLASS_NAME, value="swiper-wrapper")
-            images = contenedorImagenes.find_elements(By.TAG_NAME, "img")
-            unique_links = set()
-            for image in images:
-                image_source = image.get_attribute("src")
-                if image_source:
-                    unique_links.add(image_source)            
+            try: 
+                contenedorImagenes = self.driver.find_element(by=By.CLASS_NAME, value="swiper-wrapper")
+                images = contenedorImagenes.find_elements(By.TAG_NAME, "img")
+                unique_links = set()
+                for image in images:
+                    image_source = image.get_attribute("src")
+                    if image_source:
+                        unique_links.add(image_source)
+            except: 
+                driver.close()
+                driver.switch_to.window(driver.window_handles[0])
+                continue 
             unique_links_list = list(unique_links)
             for element in unique_links_list: 
                 dicImg = {
@@ -75,8 +80,6 @@ class ScraperSeleniumFotocasa:
             print("Se encontraron: ", len(unique_links_list), " imágenes")
             driver.close()
             driver.switch_to.window(driver.window_handles[0])
-        #for link in listaDiccionario:
-        #    print(link)
         print("Número de elementos recopilados", len(listaDiccionario))
         print("El typo del objeto listaDiccionario es: ", type(listaDiccionario))
         return listaDiccionario
