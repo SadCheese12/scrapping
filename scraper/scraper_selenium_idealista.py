@@ -29,10 +29,10 @@ class ScraperSeleniumIdealista:
         self.data ={}
         self.summaries = {}
     
-    def get_data(self):
-        for url_from_db in self.urls:
+    def get_data(self, url):
+        
             driver = self.driver
-            driver.get(url_from_db)     
+            driver.get(url)     
                 
             divs = driver.find_elements(By.CLASS_NAME, 'serp-snippet')
                 
@@ -40,10 +40,18 @@ class ScraperSeleniumIdealista:
                 
             listaDiccionario = []
             for i in range(len(divs)):
+                
                 try:
                     print(i+1, " iteracion")
+                    
+                    wait =  WebDriverWait(self.driver, 30)
+                    aviso_legal = wait.until(EC.visibility_of_element_located((By.ID, 'avisoLegalCookies')))
+                    
+                    driver.execute_script("arguments[0].parentNode.removeChild(arguments[0]);", aviso_legal)
+                    
+                    divs_2 = driver.find_elements(By.CLASS_NAME, 'serp-snippet')
                         
-                    div_container = divs[i]
+                    div_container = divs_2[i]
                     
                     div_container.click()
                         
@@ -59,9 +67,9 @@ class ScraperSeleniumIdealista:
                     data_slick_index_elements = slick_track[0].find_elements(by=By.CSS_SELECTOR, value="[data-slick-index]")
                         
                             
-                    for i in range(len(data_slick_index_elements)):
+                    for j in range(len(data_slick_index_elements)):
                         try:
-                            element = data_slick_index_elements[i]
+                            element = data_slick_index_elements[j]
                             a_elemnt = element.find_element(by=By.TAG_NAME, value="a")
                             href = a_elemnt.get_attribute("href")
                             print("URL: ", href)
@@ -73,8 +81,8 @@ class ScraperSeleniumIdealista:
                             listaDiccionario.append(dic)
                         except NoSuchElementException:
                             print("Imagen no encontrada, pasando al siguiente elemento")
-                            if i + 1 < len(data_slick_index_elements):
-                                element = data_slick_index_elements[i + 1]
+                            if j + 1 < len(data_slick_index_elements):
+                                element = data_slick_index_elements[j + 1]
                                 a_elemnt = element.find_element(by=By.TAG_NAME, value="a")
                                 href = a_elemnt.get_attribute("href")
                                 print("URL: ",href)
@@ -86,20 +94,20 @@ class ScraperSeleniumIdealista:
                                 listaDiccionario.append(dic)
                         
                     driver.back()
-                    wait =  WebDriverWait(self.driver, 10)
-                    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
                     
                 except StaleElementReferenceException:
-                    print("Actualizando referencia...")
-                    divs = driver.find_elements(By.CLASS_NAME, 'serp-snippet')
+                    print("Error...")
+                    #divs = driver.find_elements(By.CLASS_NAME, 'serp-snippet')
+                    
                     
             #self.get_data_from_page(driver,url_from_db)
             print("Numero de elementos recopilados: ", len(listaDiccionario))
-            print(listaDiccionario) 
-        driver.close()
+            driver.close()
+            return listaDiccionario
+        
        
 
-    def get_data_from_page(self,driver,url_from_db):
+    def get_data_recursivo(self,driver,url_from_db):
         print("obtaining data from " + driver.current_url)
         
             
